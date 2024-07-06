@@ -1,0 +1,443 @@
+<div class="container-fluid">
+    <div class="box">
+        <div class="pagetitle">
+            <h1>Data Orangtua</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item active">Data Orangtua</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="box-header-button">
+            <div class="btn-group btn-group-sm">
+                <button class="btn btn-sm btn-primary-gradient" (click)="getModal(content)">
+                    <i class="fa fa-plus"></i> Data Orangtua baru
+                </button>
+            </div>
+        </div>
+    </div><!-- End Page Title -->
+    <div class="box-content">
+        <ng-container *ngIf="pagePayment$ | async as listPayment; else failureOrLoading">
+            <div *ngIf="searchFormGroup" class="mb-2">
+                <form [formGroup]="searchFormGroup" (ngSubmit)="handleSearchPayment()">
+                    <div class="input-group w-25">
+                        <input type="search" formControlName="keyword"
+                               class="form-control rounded mx-2" placeholder="Search" aria-label="Search">
+                        <button type="submit" class="btn btn-outline-primary">Search</button>
+                    </div>
+                </form>
+            </div>
+            <table class="table table-striped table-hover" id="example" style="width: 100%">
+                <thead>
+                <tr>
+                    <th>Jenis Pembayaran</th>
+                    <th>tanggal</th>
+                    <th>jumlah</th>
+                    <th>bukti transaksi</th>
+                    <th>deskripsi</th>
+                    <th>User</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr *ngFor="let p of listPayment.content">
+                    <td>{{p.type_of_amount}}</td>
+                    <td>{{p.date_payment}}</td>
+                    <td>{{p.payment_amount}}</td>
+                    <td>
+                        <img [alt]="p.type_of_amount" [src]="p.payment_receipt_url" class="rounded-pill" height="42" width="42">
+                    </td>
+                    <td>{{p.description}}</td>
+                    <td>{{p.user_account_id.id}}</td>
+
+                    <td>
+                        <button (click)="handleDeletepayment(p)" class="btn btn-danger">
+                            <i class="bi-trash"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button (click)="getUpdateModel(p,updateContent)" class="btn btn-success">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+            <ul class="nav nav-pills">
+                <li *ngFor="let item of [].constructor(listPayment.totalPages); let page=index">
+                    <a [ngClass]="page==currentPage ? 'btn-info' : 'btn-outline-info'"
+                       (click)="goToPage(page)" class="btn mb-1 ms-1 mt-1">
+                        {{page}}
+                    </a>
+                </li>
+            </ul>
+        </ng-container>
+        <ng-template #failureOrLoading>
+            <ng-container *ngIf="errorMessage; else loading">
+                <div class="table-danger">
+                    {{errorMessage}}
+                </div>
+            </ng-container>
+            <ng-template #loading>
+                <div class="loader shadow-sm text-muted">
+                    <span>
+                        <i class="fa-solid fa-rotate fa-spin"></i>
+                    </span>
+                    &nbsp;
+                    <span>Processing...</span>
+                </div>
+            </ng-template>
+        </ng-template>
+    </div>
+</div>
+<ng-template #content let-modal>
+    <div class="modal-header">
+        <div class="modal-title text-muted">
+            <i class="fa-regular fa-circle-dot"></i>&nbsp;
+            Data Orangtua
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        </button>
+    </div>
+    <ng-container *ngIf="user$ | async as listuser; else modalFailureOrLoading">
+        <form [formGroup]="paymentFormGroup" method="post">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Secure id</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['secure_id']
+                                       .errors}" formControlName="secure_id">
+                            <div *ngIf="submitted && paymentFormGroup.controls['secure_id'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['secure_id'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Name</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['father_name']
+                                       .errors}" formControlName="father_name">
+                            <div *ngIf="submitted && paymentFormGroup.controls['father_name'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['father_name'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Job</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['father_job']
+                                       .errors}" formControlName="father_job">
+                            <div *ngIf="submitted && paymentFormGroup.controls['father_job'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['father_job'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Education</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['father_education']
+                                       .errors}" formControlName="father_education">
+                            <div *ngIf="submitted && paymentFormGroup.controls['father_education'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['father_education'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Age</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['father_age']
+                                       .errors}" formControlName="father_age">
+                            <div *ngIf="submitted && paymentFormGroup.controls['father_age'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['father_age'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Name</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['mother_name']
+                                       .errors}" formControlName="mother_name">
+                            <div *ngIf="submitted && paymentFormGroup.controls['mother_name'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['mother_name'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Job</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['mother_job']
+                                       .errors}" formControlName="mother_job">
+                            <div *ngIf="submitted && paymentFormGroup.controls['mother_job'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['mother_job'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Education</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['mother_education']
+                                       .errors}" formControlName="mother_education">
+                            <div *ngIf="submitted && paymentFormGroup.controls['mother_education'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['mother_education'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Age</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['mother_age']
+                                       .errors}" formControlName="mother_age">
+                            <div *ngIf="submitted && paymentFormGroup.controls['mother_age'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['mother_age'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Student Identity</label>
+                            <select class="form-select form-font rounded-0 mt-1 mb-3"
+                                    [ngClass]="{'is-invalid' : submitted && paymentFormGroup.controls['student_identity'].errors}"
+                                    formControlName="student_identity">
+                                <option [ngValue]="null" disabled>Choose Student Identity</option>
+                                <option *ngFor="let i of listuser" [ngValue]="i">{{i.id}}</option>
+                            </select>
+                            <div *ngIf="submitted && paymentFormGroup.controls['student_identity'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="paymentFormGroup.controls['student_identity'].errors['required']">
+                                    Student Identity is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" (click)="onCloseModal(modal)">Close</button>
+                <button type="button" class="btn btn-sm btn-primary" (click)="onSaveCourse(modal)">Save changes</button>
+            </div>
+        </form>
+    </ng-container>
+    <ng-template #modalFailureOrLoading>
+        <ng-container *ngIf="errorUserMessage; else modalLoading">
+            <div class="text-danger">
+                {{errorUserMessage}}
+            </div>
+        </ng-container>
+        <ng-template #modalLoading>
+            <div class="loader shadow-sm text-muted">
+                <span>
+                    <i class="fa-solid fa-rotate fa-spin"></i>
+                </span> &nbsp;
+                <span>
+                    Processing...
+                </span>
+            </div>
+        </ng-template>
+    </ng-template>
+</ng-template>
+<ng-template #updateContent let-updateModal>
+    <div class="modal-header">
+        <div class="modal-title text-muted">
+            <i class="fa-regular fa-circle-dot"></i>&nbsp;
+            Data Orangtua
+        </div>
+        <button type="button" class="btn-close" aria-label="Close" (click)="updateModal.dismiss('Cross click')">
+        </button>
+    </div>
+    <ng-container *ngIf="user$ | async as listuser; else modalFailureOrLoading">
+        <form [formGroup]="updatePaymentFormGroup" method="post">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Name</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['father_name']
+                                       .errors}" formControlName="father_name">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['father_name'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['father_name'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Job</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['father_job']
+                                       .errors}" formControlName="father_job">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['father_job'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['father_job'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Education</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['father_education']
+                                       .errors}" formControlName="father_education">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['father_education'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['father_education'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Father Age</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['father_age']
+                                       .errors}" formControlName="father_age">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['father_age'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['father_age'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Name</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['mother_name']
+                                       .errors}" formControlName="mother_name">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['mother_name'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['mother_name'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Job</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['mother_job']
+                                       .errors}" formControlName="mother_job">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['mother_job'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['mother_job'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Education</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['mother_education']
+                                       .errors}" formControlName="mother_education">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['mother_education'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['mother_education'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Mother Age</label>
+                            <input type="text" class="form-control form-font rounded-0 mt-1 mb-3"
+                                   [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['mother_age']
+                                       .errors}" formControlName="mother_age">
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['mother_age'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['mother_age'].errors['required']">
+                                    Father Name is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="text-muted">Student Identity</label>
+                            <select class="form-select form-font rounded-0 mt-1 mb-3"
+                                    [ngClass]="{'is-invalid' : submitted && updatePaymentFormGroup.controls['student_identity'].errors}"
+                                    formControlName="student_identity">
+                                <option [ngValue]="null" disabled>Choose Student Identity</option>
+                                <option *ngFor="let i of listuser" [ngValue]="i">{{i.id}}</option>
+                            </select>
+                            <div *ngIf="submitted && updatePaymentFormGroup.controls['student_identity'].errors"
+                                 class="invalid-feedback">
+                                <div *ngIf="updatePaymentFormGroup.controls['student_identity'].errors['required']">
+                                    Student Identity is required
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-sm btn-secondary" (click)="onCloseModal(updateModal)">Close</button>
+                <button type="button" class="btn btn-sm btn-primary" (click)="onUpdate(updateModal)">Save changes</button>
+            </div>
+        </form>
+    </ng-container>
+    <ng-template #modalFailureOrLoading>
+        <ng-container *ngIf="errorUserMessage; else modalLoading">
+            <div class="text-danger">
+                {{errorUserMessage}}
+            </div>
+        </ng-container>
+        <ng-template #modalLoading>
+            <div class="loader shadow-sm text-muted">
+                <span>
+                    <i class="fa-solid fa-rotate fa-spin"></i>
+                </span> &nbsp;
+                <span>
+                    Processing...
+                </span>
+            </div>
+        </ng-template>
+    </ng-template>
+</ng-template>
